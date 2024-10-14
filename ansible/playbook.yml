@@ -1,0 +1,90 @@
+---
+- name: Assert host properties and generate payload.json
+  hosts: all
+  gather_facts: true
+  vars:
+    payload:
+      name: "Assert host properties"
+      fullName: "Assert host properties"
+      description: "Testing assertion of host characteristics"
+      status: "failed"
+      host: "{{ inventory_hostname }}"
+      steps: []
+
+  tasks:
+    - name: Record start time for distribution assertion
+      set_fact:
+        start_time_distribution: "{{ ansible_date_time.epoch | int }}"
+
+    - name: Assert distribution is Debian
+      ansible.builtin.assert:
+        that:
+          - ansible_distribution == 'Debian'
+        fail_msg: "Distribution is not Debian"
+        success_msg: "Distribution is Debian"
+      register: distribution_assert
+      ignore_errors: true
+
+    - name: Record stop time for distribution assertion
+      set_fact:
+        stop_time_distribution: "{{ ansible_date_time.epoch | int }}"
+
+    - name: Add step for distribution assertion
+      set_fact:
+        payload: "{{ payload | combine({'steps': payload.steps + [{'name': 'Assert distribution', 'status': distribution_assert.failed | ternary('failed', 'passed'), 'statusDetails': {'message': distribution_assert.msg }, 'start': start_time_distribution, 'stop': stop_time_distribution} ]}) }}"
+
+    - name: Record start time for processor assertion
+      set_fact:
+        start_time_processor: "{{ ansible_date_time.epoch | int }}"
+
+    - name: Assert processor cores are 2 or more
+      ansible.builtin.assert:
+        that:
+          - ansible_processor_cores | int >= 2
+        fail_msg: "Processor cores are less than 2"
+        success_msg: "Processor cores are sufficient"
+      register: processor_assert
+      ignore_errors: true
+    
+    - name: Record stop time for processor assertion
+      set_fact:
+        stop_time_processor: "{{ ansible_date_time.epoch | int }}"
+
+    - name: Add step for processor assertion
+      set_fact:
+        payload: "{{ payload | combine({'steps': payload.steps + [{'name': 'Assert processor cores', 'status': processor_assert.failed | ternary('failed', 'passed'), 'statusDetails': {'message': processor_assert.msg}, 'start': start_time_processor, 'stop': stop_time_processor} ]}) }}"
+
+    - name: Record start time for kernel assertion
+      set_fact:
+        start_time_kernel: "{{ ansible_date_time.epoch | int }}"
+
+    - name: Assert kernel version is 4.19.97-v7l+
+      ansible.builtin.assert:
+        that:
+          - ansible_kernel == '4.19.97-v7l+'
+        fail_msg: "Kernel version does not match"
+        success_msg: "Kernel version matches"
+      register: kernel_assert
+      ignore_errors: true
+    
+    - name: Record stop time for kernel assertion
+      set_fact:
+        stop_time_kernel: "{{ ansible_date_time.epoch | int }}"
+
+    - name: Add step for kernel assertion
+      set_fact:
+        payload: "{{ payload | combine({'steps': payload.steps + [{'name': 'Assert kernel version', 'status': kernel_assert.failed | ternary('failed', 'passed'), 'statusDetails': {'message': kernel_assert.msg}, 'start': start_time_kernel, 'stop': stop_time_kernel} ]}) }}"
+
+    - name: Display final payload
+      debug:
+        var: payload
+    
+    - name: Send payload to allure-service
+      uri:
+        url: "http://127.0.0.1:8000/submit-results"
+        method: POST
+        body: "{{ payload | to_nice_json }}"
+        body_format: json
+        headers:
+          'Content-Type': 'application/json'
+        status_code: 200

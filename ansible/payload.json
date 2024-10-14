@@ -1,0 +1,36 @@
+{
+    "description": "Testing assertion of host characteristics",
+    "fullName": "Assert host properties",
+    "host": "127.0.0.1",
+    "name": "Assert host properties",
+    "status": "failed",
+    "steps": [
+        {
+            "name": "Assert distribution",
+            "start": "1728947787",
+            "status": "failed",
+            "statusDetails": {
+                "message": "Distribution is not Debian"
+            },
+            "stop": "1728947787"
+        },
+        {
+            "name": "Assert processor cores",
+            "start": "1728947787",
+            "status": "passed",
+            "statusDetails": {
+                "message": "Processor cores are sufficient"
+            },
+            "stop": "1728947787"
+        },
+        {
+            "name": "Assert kernel version",
+            "start": "1728947787",
+            "status": "failed",
+            "statusDetails": {
+                "message": "Kernel version does not match"
+            },
+            "stop": "1728947787"
+        }
+    ]
+}
