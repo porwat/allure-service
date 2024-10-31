@@ -10,6 +10,9 @@
       status: "failed"
       host: "{{ inventory_hostname }}"
       steps: []
+      labels:
+        - name: 'parentSuite'
+          value: "{{ inventory_hostname }}"
 
   tasks:
     - name: Record start time for distribution assertion

@@ -20,6 +20,7 @@ class Result(BaseModel):
     status: str
     host: str
     steps: list
+    labels: list
 
 app = FastAPI()
 
@@ -46,7 +47,7 @@ async def send_result(data: Result):
         description=result['description'],
         steps=result['steps'],
         attachments=[],
-        labels=[]
+        labels=result['labels']
     )
 
     # Save the result

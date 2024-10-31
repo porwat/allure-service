@@ -19,7 +19,7 @@
             "start": "1728947787",
             "status": "passed",
             "statusDetails": {
-                "message": "Processor cores are sufficient"
+                "message": "Processor cores are suffic\nOther message"
             },
             "stop": "1728947787"
         },
@@ -32,5 +32,12 @@
             },
             "stop": "1728947787"
         }
+    ],
+    "labels": [
+        {
+            "name": "parentSuite",
+            "value": "localhost"
+        }
     ]
+
 }
